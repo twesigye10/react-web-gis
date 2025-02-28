@@ -1,26 +1,35 @@
-import React from "react";
-import Select from "react-select";
+import React, { useState } from "react";
+import { MultiSelect } from "react-multi-select-component";
 
 const DataFilter = ({ onFilterChange, selectedFilter, attrOptions }) => {
-  const handleChange = (event) => {
-    onFilterChange(event.target.value);
+  // State to track selected filters
+  const [sldFilters, setSldFilters] = useState([]);
+
+  const handleChange = (selected) => {
+    const selectedOpts = selected.map((opt) => opt.value);
+
+    setSldFilters(selectedOpts);
+    onFilterChange(selectedOpts);
   };
 
-  const currentOptions = attrOptions.map((entry) => (
-    <option value={entry} key={entry}>
-      {entry}
-    </option>
-  ));
+  const currentOptions = attrOptions.map((entry) => ({
+    label: entry,
+    value: entry,
+  }));
   return (
     <div>
-      <label>Select Option: </label>
-      <select
-        value={selectedFilter}
-        key={"sel_options"}
-        onChange={handleChange}
-      >
-        {currentOptions}
-      </select>
+      <label>
+        Select Options:
+        <MultiSelect
+          options={currentOptions}
+          key={"sel_options"}
+          value={currentOptions.filter((option) =>
+            sldFilters.includes(option.value)
+          )}
+          onChange={handleChange}
+          labelledBy="Select"
+        />
+      </label>
     </div>
   );
 };

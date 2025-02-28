@@ -9,54 +9,80 @@ import SelectAttribute from "./SelectAttribute";
 
 const App = () => {
   const [mapData, setMapData] = useState(rehobothData);
-  const [locOptions, setLocOptions] = useState([]);
-  const [attrOptions, setAttrOptions] = useState([]);
-  const [filter, setFilter] = useState("");
   const [attrSelected, setAttrSelected] = useState("");
+  const [attrOptions, setAttrOptions] = useState([]);
+  const [filter, setFilter] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
 
   useEffect(() => {
+    // initialize map data
     setMapData(rehobothData);
-    const locEntries = Array.from(
-      new Set(rehobothData.features.map((feat) => feat.properties.location))
-    );
-    setLocOptions(locEntries);
+
+    // initialize first attribute
+    const firstAttribute = Object.keys(rehobothData.features[0].properties)[0];
+    setAttrSelected(firstAttribute);
 
     // init attribute options
     const initAttrEntries = Array.from(
       new Set(
-        rehobothData.features.map(
-          (feat) =>
-            feat.properties[Object.keys(rehobothData.features[0].properties)[0]]
-        )
+        rehobothData.features.map((feat) => feat.properties[firstAttribute])
       )
     );
     setAttrOptions(initAttrEntries);
 
-    // init filtered data
+    // init chart data
     const initfilterChartData = rehobothData.features
-      .map(
-        (entry) =>
-          entry.properties[Object.keys(rehobothData.features[0].properties)[0]]
-      )
+      .map((entry) => entry.properties[firstAttribute])
+      .reduce((acc, item) => {
+        acc[item] = (acc[item] || 0) + 1;
+        return acc;
+      }, {});
+    setFilteredData(initfilterChartData);
+  }, []);
+
+  // handle column/attribute changes
+
+  const handleAttrChange = (attr) => {
+    setAttrSelected(attr);
+    // handleFilterChange(filter);
+    // updated attribute options
+    const updatedAttrEntries = Array.from(
+      new Set(rehobothData.features.map((feat) => feat.properties[attr]))
+    );
+    setAttrOptions(updatedAttrEntries);
+    // console.log(`Updated attribute: ${attr}`);
+    // console.log(`Updated options:`);
+    // console.log(updatedAttrEntries);
+
+    // reset chart data based on selected attribute
+    const filteredChartData = rehobothData.features
+      .map((entry) => entry.properties[attr])
       .reduce((acc, item) => {
         acc[item] = (acc[item] || 0) + 1;
         return acc;
       }, {});
 
     // chart data
-    setFilteredData(initfilterChartData);
-  }, []);
+    setFilteredData(filteredChartData);
+
+    // // rest map data || if data is colored based on column
+    // const filteredGeodata = {
+    //   type: "FeatureCollection",
+    //   name: "Rehoboth Job Card",
+    //   features: filtered,
+    // };
+    // setMapData(filteredGeodata);
+  };
 
   // Handle filter changes and update filtered data
   const handleFilterChange = (selectedFilter) => {
     setFilter(selectedFilter);
 
-    const filtered = rehobothData.features.filter(
-      (dataPoint) => dataPoint.properties[attrSelected] === selectedFilter
+    const filtered = rehobothData.features.filter((dataPoint) =>
+      selectedFilter.includes(dataPoint.properties[attrSelected])
     );
     // supposed to update based on filters
-    const filteredChartData = rehobothData.features
+    const filteredChartData = filtered
       .map((entry) => entry.properties[attrSelected])
       .reduce((acc, item) => {
         acc[item] = (acc[item] || 0) + 1;
@@ -76,42 +102,6 @@ const App = () => {
     // console.log("====================================");
     // console.log(filteredGeodata);
     // console.log("====================================");
-  };
-  // Handle attribute changes
-  const handleAttrChange = (attr) => {
-    setAttrSelected(attr);
-    // handleFilterChange(filter);
-    // updated attribute options
-    const updatedAttrEntries = Array.from(
-      new Set(rehobothData.features.map((feat) => feat.properties[attr]))
-    );
-    setAttrOptions(updatedAttrEntries);
-    console.log(`Updated attribute: ${attr}`);
-    console.log(`Updated options:`);
-    console.log(updatedAttrEntries);
-
-    // update data
-    // const filtered = rehobothData.features.filter(
-    //   (dataPoint) => dataPoint.properties[attr] === selectedFilter
-    // );
-    // supposed to update based on filters
-    const filteredChartData = rehobothData.features
-      .map((entry) => entry.properties[attr])
-      .reduce((acc, item) => {
-        acc[item] = (acc[item] || 0) + 1;
-        return acc;
-      }, {});
-
-    // chart data
-    setFilteredData(filteredChartData);
-
-    // // map data
-    // const filteredGeodata = {
-    //   type: "FeatureCollection",
-    //   name: "Rehoboth Job Card",
-    //   features: filtered,
-    // };
-    // setMapData(filteredGeodata);
   };
 
   return (
