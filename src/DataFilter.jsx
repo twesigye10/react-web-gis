@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { MultiSelect } from "react-multi-select-component";
+import Nouislider from "nouislider-react"; // https://github.com/mmarkelov/react-nouislider
+import "nouislider/distribute/nouislider.css";
 
 const DataFilter = ({ onFilterChange, selectedFilter, attrOptions }) => {
   // State to track selected filters
@@ -18,6 +20,7 @@ const DataFilter = ({ onFilterChange, selectedFilter, attrOptions }) => {
   }));
   return (
     <div>
+      {/* Multi select */}
       <label>
         Select Options:
         <MultiSelect
@@ -30,6 +33,17 @@ const DataFilter = ({ onFilterChange, selectedFilter, attrOptions }) => {
           labelledBy="Select"
         />
       </label>
+      {/* numeric selections */}
+      <Nouislider
+        range={{ min: 0, max: 100 }}
+        start={[20, 80]}
+        connect={true}
+        tooltips={true}
+        step={1}
+        onChange={(values) => {
+          console.log(values);
+        }}
+      />
     </div>
   );
 };
