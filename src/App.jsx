@@ -9,6 +9,7 @@ import SelectAttribute from "./SelectAttribute";
 
 const App = () => {
   const [appData, setAppData] = useState({});
+  const [surveyTool, setSurveyTool] = useState({});
   const [mapData, setMapData] = useState({});
   const [attrSelected, setAttrSelected] = useState("");
   const [attrOptions, setAttrOptions] = useState([]);
@@ -31,6 +32,7 @@ const App = () => {
           console.log(data);
 
           setAppData(data);
+          setSurveyTool(data.survey);
 
           // after fetching data
           // initialize map data
@@ -82,14 +84,14 @@ const App = () => {
           );
           setAttrOptions(initAttrEntries);
 
-          // init chart data
-          const initfilterChartData = data.geodata.features
-            .map((entry) => entry.properties[firstAttribute])
-            .reduce((acc, item) => {
-              acc[item] = (acc[item] || 0) + 1;
-              return acc;
-            }, {});
-          setFilteredData(initfilterChartData);
+          // // init chart data
+          // const initfilterChartData = data.geodata.features
+          //   .map((entry) => entry.properties[firstAttribute])
+          //   .reduce((acc, item) => {
+          //     acc[item] = (acc[item] || 0) + 1;
+          //     return acc;
+          //   }, {});
+          setFilteredData(data.geodata.features);
         });
 
     fetchData();
@@ -175,16 +177,16 @@ const App = () => {
     // console.log(`Updated options:`);
     // console.log(updatedAttrEntries);
 
-    // reset chart data based on selected attribute
-    const filteredChartData = appData.geodata.features
-      .map((entry) => entry.properties[attr])
-      .reduce((acc, item) => {
-        acc[item] = (acc[item] || 0) + 1;
-        return acc;
-      }, {});
+    // // reset chart data based on selected attribute
+    // const filteredChartData = appData.geodata.features
+    //   .map((entry) => entry.properties[attr])
+    //   .reduce((acc, item) => {
+    //     acc[item] = (acc[item] || 0) + 1;
+    //     return acc;
+    //   }, {});
 
-    // chart data
-    setFilteredData(filteredChartData);
+    // // chart data
+    // setFilteredData(filteredChartData);
 
     // // rest map data || if data is colored based on column
     // const filteredGeodata = {
@@ -202,16 +204,16 @@ const App = () => {
     const filtered = appData.geodata.features.filter((dataPoint) =>
       selectedFilter.includes(dataPoint.properties[attrSelected])
     );
-    // supposed to update based on filters
-    const filteredChartData = filtered
-      .map((entry) => entry.properties[attrSelected])
-      .reduce((acc, item) => {
-        acc[item] = (acc[item] || 0) + 1;
-        return acc;
-      }, {});
+    // // supposed to update based on filters
+    // const filteredChartData = filtered
+    //   .map((entry) => entry.properties[attrSelected])
+    //   .reduce((acc, item) => {
+    //     acc[item] = (acc[item] || 0) + 1;
+    //     return acc;
+    //   }, {});
 
     // chart data
-    setFilteredData(filteredChartData);
+    setFilteredData(filtered);
 
     // map data
     const filteredGeodata = {
@@ -252,7 +254,7 @@ const App = () => {
                 sliderStep={sliderStep}
               />
             ) : null}
-            <ChartPanel data={filteredData} />
+            <ChartPanel data={filteredData} surveytool={surveyTool} />
           </div>
         ) : null}
         {Object.keys(mapData).length > 0 ? (
